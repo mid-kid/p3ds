@@ -28,6 +28,10 @@ class Mset_4x:
 	code_target = gsp_addr + fcram_code_addr + payload_addr
 	code_entry = 0x100000 + payload_addr
 
+# MSET 4.x for Firm 9.0~9.2
+class Mset_4x_DG(Mset_4x):
+	code_target = 0x17EB0000 # 0x23EB0000 0x17EB0000
+
 class Spider_4x:
 	memcpy = 0x0029BF60											# bx lr
 	GSPGPU_FlushDataCache = 0x00344C2C							# ldmfd sp!, {r4-r6, pc}

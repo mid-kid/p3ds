@@ -10,6 +10,9 @@ def main(argv):
 	if(argv[0] == "MSET_4X"):
 		app = Mset_4x()
 		r = Mset_4x_ROP(app.rop_loc)
+	elif(argv[0] == "MSET_4X_DG"):
+		app = Mset_4x_DG()
+		r = Mset_4x_ROP(app.rop_loc)
 	elif(argv[0] == "SPIDER_4X"):
 		app = Spider_4x()
 		r = Spider_4x_ROP(app.rop_loc)
