@@ -28,9 +28,36 @@ class Mset_4x:
 	code_target = gsp_addr + fcram_code_addr + payload_addr
 	code_entry = 0x100000 + payload_addr
 
-# MSET 4.x for Firm 9.0~9.2
+# MSET 4.x for Firm 6.1,9.0~9.2
 class Mset_4x_DG(Mset_4x):
 	code_target = 0x17EB0000 # 0x23EB0000 0x17EB0000
+
+class Mset_6x:
+	memcpy = 0x001C814C											# bx lr
+	GSPGPU_FlushDataCache = 0x0013D3FC							# ldmfd sp!, {r4-r6, pc}
+	nn__gxlow__CTR__CmdReqQueueTx__TryEnqueue = 0x001B4E8C		# ldmfd sp!, {r4-r10,pc}
+	nn__gxlow__CTR__detail__GetInterruptReceiver = 0x0028A580
+	svcSleepThread = 0x001B6C6C									# bx lr
+	fopen = 0x001C08B4											# ldmfd sp!, {r4-r8,pc}
+	fread = 0x001BC188											# ldmfd sp!, {r4-r9,pc}
+	fwrite = 0x001BC380											# ldmfd sp!, {r4-r11,pc}
+
+	# Pop counts
+	GSPGPU_FlushDataCache_pops = 3
+	nn__gxlow__CTR__CmdReqQueueTx__TryEnqueue_pops = 7
+	fopen_pops = 5
+	fread_pops = 6
+	fwrite_pops = 8
+
+	rop_loc = 0x00290000
+	gsp_handle = 0x0028DBEC
+	gsp_addr = 0x14000000
+	gsp_code_addr = 0x00700000
+	payload_addr = 0x00140000
+	file_handle = 0x287000
+	buffer = gsp_addr + gsp_code_addr
+	code_target = 0x17EA0000 # 0x100000->0x23F00000 0x240000->0x23EA0000
+	code_entry = 0x100000 + payload_addr
 
 class Spider_4x:
 	memcpy = 0x0029BF60											# bx lr

